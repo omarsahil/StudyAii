@@ -349,7 +349,7 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen bg-[#f7f6f3] py-10 px-2 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-blue-100 to-white text-indigo-900 py-10 px-2 font-sans transition-colors duration-300">
       {/* Clerk Auth Bar */}
       <div className="max-w-4xl mx-auto mb-6 flex justify-end items-center gap-4">
         {!isLoaded ? (
@@ -475,15 +475,18 @@ export default function App() {
         </div>
       )}
       {/* Main App */}
-      <div className="max-w-4xl mx-auto bg-white/90 rounded-3xl shadow-2xl p-4 sm:p-8 md:p-12 border border-[#ececec] relative">
+      <div className="max-w-4xl mx-auto bg-white/90 rounded-3xl shadow-2xl p-4 sm:p-8 md:p-12 border border-blue-100 relative">
+        {/* My Study Sets Section */}
         {isSignedIn && (
-          <div className="w-full max-w-xs bg-white rounded-xl shadow p-4 mb-6">
-            <h3 className="font-bold text-lg mb-2">My Study Sets</h3>
+          <div className="w-full max-w-xs bg-white/90 rounded-xl shadow p-4 mb-6 border border-blue-100">
+            <h3 className="font-bold text-lg mb-2 text-indigo-800">
+              My Study Sets
+            </h3>
             <ul>
               {studySessions.map((session) => (
                 <li key={session.id} className="mb-2">
                   <button
-                    className="text-indigo-600 underline"
+                    className="text-indigo-700 underline"
                     onClick={() => {
                       setTopic(session.topic);
                       setResult(session.result);
@@ -499,12 +502,12 @@ export default function App() {
                     }}
                   >
                     {session.topic}{" "}
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-blue-400">
                       ({new Date(session.created_at).toLocaleString()})
                     </span>
                   </button>
                   <button
-                    className="text-red-500 ml-2"
+                    className="text-red-500 ml-2 hover:text-red-700"
                     onClick={async () => {
                       await supabase
                         .from("study_sessions")
