@@ -79,6 +79,7 @@ export default function App() {
   const [saveName, setSaveName] = useState("");
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [studySessions, setStudySessions] = useState<any[]>([]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // On mount, check for user session
   useEffect(() => {
@@ -349,390 +350,480 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-blue-100 to-white text-indigo-900 py-6 px-1 sm:px-4 md:px-8 font-sans transition-colors duration-300">
-      {/* Clerk Auth Bar */}
-      <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row justify-end items-center gap-4 px-2">
-        {!isLoaded ? (
-          <div className="text-center py-4">Loading...</div>
-        ) : (
-          <>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="bg-black text-white px-4 py-1 rounded-lg font-semibold hover:bg-[#222] transition">
-                  Login
-                </button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
-              <div className="flex items-center gap-2">
-                <button
-                  className="mr-2 px-3 py-1 rounded-full text-xs font-bold bg-gray-200 text-gray-700 border border-gray-300 align-middle focus:outline-none hover:bg-gray-300 transition"
-                  onClick={() => setShowPricingModal(true)}
-                  title="View or upgrade your plan"
-                >
-                  {userPlan || "Free"}
-                </button>
+    <>
+      {/* Glassmorphism Navbar: glass effect on all screens, logo left, actions right */}
+      <nav className="fixed z-50 top-0 left-0 right-0 w-full bg-white/60 backdrop-blur-lg border border-blue-100 shadow-xl flex items-center justify-between px-3 h-16 transition-all sm:px-8 sm:rounded-2xl">
+        {/* Logo/Title - always visible, left-aligned */}
+        <button
+          className="flex items-center h-full focus:outline-none group text-indigo-700 font-serif tracking-tight select-none text-2xl font-extrabold sm:text-xl sm:font-bold sm:text-gray-700"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          aria-label="Go to top"
+        >
+          <span className="group-hover:text-indigo-900 transition">
+            📝 Study AI
+          </span>
+        </button>
+        {/* Right side: plan badge, profile, pricing */}
+        <div className="flex items-center gap-2 sm:gap-3 h-full">
+          <span
+            className={`px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-bold border align-middle select-none transition
+              ${
+                userPlan === "Pro"
+                  ? "bg-indigo-100 text-indigo-700 border-indigo-300"
+                  : userPlan === "Premium"
+                  ? "bg-purple-100 text-purple-700 border-purple-300"
+                  : "bg-gray-100 text-gray-700 border-gray-300"
+              }`}
+            title="Your current plan"
+          >
+            {userPlan || "Free"}
+          </span>
+          {!isLoaded ? (
+            <div className="text-center py-2">...</div>
+          ) : (
+            <>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="bg-black text-white px-3 sm:px-4 py-1 rounded-lg font-semibold hover:bg-[#222] transition text-sm sm:text-base">
+                    Login
+                  </button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
                 <UserButton afterSignOutUrl="/" />
-              </div>
-            </SignedIn>
+              </SignedIn>
+            </>
+          )}
+          <button
+            onClick={() => setShowPricingModal(true)}
+            className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-1 rounded-lg font-semibold shadow hover:from-indigo-600 hover:to-purple-600 transition hidden sm:block"
+          >
+            Pricing
+          </button>
+          {/* Hamburger menu for mobile only */}
+          <button
+            className="ml-1 flex items-center justify-center w-9 h-9 rounded-full hover:bg-indigo-100 transition focus:outline-none sm:hidden"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Open menu"
+          >
+            <svg
+              className="w-6 h-6 text-indigo-700"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+        {/* Mobile Dropdown Menu */}
+        {menuOpen && (
+          <div className="absolute top-16 right-2 w-44 bg-white/95 rounded-xl shadow-lg border border-blue-100 py-2 z-50 animate-fade-in flex flex-col sm:hidden">
             <button
-              onClick={() => setShowPricingModal(true)}
-              className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 py-1 rounded-lg font-semibold shadow hover:from-indigo-600 hover:to-purple-600 transition"
+              onClick={() => {
+                setShowPricingModal(true);
+                setMenuOpen(false);
+              }}
+              className="w-full text-left px-4 py-2 text-indigo-700 hover:bg-indigo-50 rounded-t-xl font-semibold"
             >
               Pricing
             </button>
-          </>
-        )}
-      </div>
-      {/* Pricing Modal */}
-      {showPricingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
-          <div className="bg-black text-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl relative">
             <button
-              onClick={() => setShowPricingModal(false)}
-              className="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl"
+              onClick={() => {
+                setMenuOpen(false);
+              }}
+              className="w-full text-left px-4 py-2 text-gray-500 hover:bg-gray-50 rounded-b-xl font-medium"
+              disabled
             >
-              &times;
+              More coming soon
             </button>
-            <h2 className="text-3xl font-bold mb-8 text-center font-serif">
-              Choose Your Plan
-            </h2>
-            <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch">
-              {/* Free Plan */}
-              <div className="flex-1 bg-gray-900 rounded-xl p-6 border border-gray-700 shadow-sm flex flex-col items-center">
-                <h3 className="text-xl font-bold mb-2 text-indigo-300">Free</h3>
-                <div className="text-3xl font-extrabold mb-2">$0</div>
-                <ul className="text-gray-200 text-sm mb-4 space-y-2 text-left">
-                  <li>✔️ 3 generations (flashcards/MCQs)</li>
-                  <li>✔️ Basic flashcards & MCQs</li>
-                  <li>✔️ File upload</li>
-                  <li>✔️ Limited media support</li>
-                  <li>❌ Priority support</li>
-                </ul>
-                <button
-                  className="bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-gray-800 transition mt-auto"
-                  onClick={() => {
-                    localStorage.setItem("plan", "Free");
-                    setUserPlan("Free");
-                    setShowPricingModal(false);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  disabled={userPlan === "Free"}
-                >
-                  {userPlan === "Free" ? "Free Active" : "Choose Free"}
-                </button>
-                <div className="mt-2 text-xs text-gray-400">
-                  No card required
-                </div>
-              </div>
-              {/* Pro Plan */}
-              <div className="flex-1 bg-gray-950 rounded-xl p-6 border-2 border-indigo-500 shadow-lg flex flex-col items-center scale-105">
-                <h3 className="text-xl font-bold mb-2 text-indigo-200">Pro</h3>
-                <div className="text-3xl font-extrabold mb-2">
-                  $15<span className="text-base font-normal">/mo</span>
-                </div>
-                <ul className="text-gray-200 text-sm mb-4 space-y-2 text-left">
-                  <li>✔️ Unlimited generations</li>
-                  <li>✔️ Advanced flashcards & MCQs</li>
-                  <li>✔️ File & media upload</li>
-                  <li>✔️ Priority support</li>
-                  <li>❌ Early access features</li>
-                </ul>
-                <button
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-indigo-700 transition mt-auto"
-                  onClick={() => handlePay(1500, "Pro")} // 1500 INR for Pro
-                  disabled={userPlan === "Pro" || userPlan === "Premium"}
-                >
-                  {userPlan === "Pro" || userPlan === "Premium"
-                    ? "Pro Unlocked"
-                    : "Buy Pro"}
-                </button>
-              </div>
-              {/* Premium Plan */}
-              <div className="flex-1 bg-gray-900 rounded-xl p-6 border border-gray-700 shadow-sm flex flex-col items-center">
-                <h3 className="text-xl font-bold mb-2 text-purple-200">
-                  Premium
-                </h3>
-                <div className="text-3xl font-extrabold mb-2">
-                  $40<span className="text-base font-normal">/mo</span>
-                </div>
-                <ul className="text-gray-200 text-sm mb-4 space-y-2 text-left">
-                  <li>✔️ All Pro features</li>
-                  <li>✔️ Export to PDF/CSV</li>
-                  <li>✔️ Early access to new features</li>
-                  <li>✔️ Dedicated support</li>
-                </ul>
-                <button
-                  className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-purple-700 transition mt-auto"
-                  onClick={() => handlePay(4000, "Premium")} // 4000 INR for Premium
-                  disabled={userPlan === "Premium"}
-                >
-                  {userPlan === "Premium" ? "Premium Unlocked" : "Buy Premium"}
-                </button>
-              </div>
-            </div>
           </div>
-        </div>
-      )}
-      {/* Main App */}
-      <div className="max-w-4xl mx-auto bg-white/90 rounded-3xl shadow-2xl p-2 sm:p-6 md:p-10 border border-blue-100 relative w-full">
-        {/* My Study Sets Section */}
-        {isSignedIn && (
-          <div className="w-full max-w-xs sm:max-w-md md:max-w-lg bg-white/90 rounded-xl shadow p-4 mb-6 border border-blue-100 mx-auto">
-            <h3 className="font-bold text-lg sm:text-xl mb-2 text-indigo-800">
-              My Study Sets
-            </h3>
-            <ul>
-              {studySessions.map((session) => (
-                <li
-                  key={session.id}
-                  className="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
-                >
+        )}
+      </nav>
+      {/* Main App Content (responsive pt for navbar) */}
+      <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-blue-100 to-white text-indigo-900 pt-20 py-6 px-1 sm:px-4 md:px-8 font-sans transition-colors duration-300 flex flex-col items-center">
+        {/* Pricing Modal */}
+        {showPricingModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
+            <div className="bg-black text-white rounded-2xl shadow-2xl p-8 w-full max-w-2xl relative">
+              <button
+                onClick={() => setShowPricingModal(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl"
+              >
+                &times;
+              </button>
+              <h2 className="text-3xl font-bold mb-8 text-center font-serif">
+                Choose Your Plan
+              </h2>
+              <div className="flex flex-col md:flex-row gap-6 justify-center items-stretch">
+                {/* Free Plan */}
+                <div className="flex-1 bg-gray-900 rounded-xl p-6 border border-gray-700 shadow-sm flex flex-col items-center">
+                  <h3 className="text-xl font-bold mb-2 text-indigo-300">
+                    Free
+                  </h3>
+                  <div className="text-3xl font-extrabold mb-2">$0</div>
+                  <ul className="text-gray-200 text-sm mb-4 space-y-2 text-left">
+                    <li>✔️ 3 generations (flashcards/MCQs)</li>
+                    <li>✔️ Basic flashcards & MCQs</li>
+                    <li>✔️ File upload</li>
+                    <li>✔️ Limited media support</li>
+                    <li>❌ Priority support</li>
+                  </ul>
                   <button
-                    className="text-indigo-700 underline text-left truncate"
+                    className="bg-gray-700 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-gray-800 transition mt-auto"
                     onClick={() => {
-                      setTopic(session.topic);
-                      setResult(session.result);
-                      setRevealed(
-                        Array(session.result.flashcards.length).fill(false)
-                      );
-                      setMcqAnswers(
-                        Array(session.result.mcqs.length).fill(null)
-                      );
-                      setMcqFeedback(
-                        Array(session.result.mcqs.length).fill(null)
-                      );
+                      localStorage.setItem("plan", "Free");
+                      setUserPlan("Free");
+                      setShowPricingModal(false);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
                     }}
+                    disabled={userPlan === "Free"}
                   >
-                    {session.topic}{" "}
-                    <span className="text-xs text-blue-400">
-                      ({new Date(session.created_at).toLocaleString()})
-                    </span>
+                    {userPlan === "Free" ? "Free Active" : "Choose Free"}
                   </button>
-                  <button
-                    className="text-red-500 ml-0 sm:ml-2 hover:text-red-700 w-full sm:w-auto"
-                    onClick={async () => {
-                      await supabase
-                        .from("study_sessions")
-                        .delete()
-                        .eq("id", session.id);
-                      setStudySessions((prev) =>
-                        prev.filter((s) => s.id !== session.id)
-                      );
-                    }}
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        <h1 className="text-4xl font-extrabold mb-8 text-center text-black tracking-tight font-serif">
-          <span className="inline-block align-middle mr-2">📝</span>Study AI
-          Generator
-        </h1>
-        <form
-          onSubmit={handleGenerate}
-          className="flex flex-col sm:flex-row gap-3 mb-10 justify-center"
-        >
-          <input
-            className="flex-1 border border-[#e0e0e0] bg-[#faf9f6] rounded-lg px-4 py-2 text-lg focus:outline-none focus:border-[#b2b2b2] transition shadow-sm font-sans"
-            type="text"
-            placeholder="Enter a topic (e.g. Photosynthesis)"
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            required={!uploadedFiles.length}
-            disabled={loading}
-          />
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#ececec] file:text-black hover:file:bg-[#e0e0e0]"
-            onChange={handleFileUpload}
-            disabled={loading}
-            style={{ maxWidth: 220 }}
-          />
-          <button
-            className="bg-black text-white px-6 py-2 rounded-lg text-lg font-semibold shadow hover:bg-[#222] transition disabled:opacity-50 font-sans"
-            type="submit"
-            disabled={
-              loading ||
-              (!topic && !uploadedFiles.length) ||
-              flashcardCount < 1 ||
-              flashcardCount > 20 ||
-              mcqCount < 1 ||
-              mcqCount > 20
-            }
-          >
-            {loading ? (
-              <span className="flex items-center gap-2">
-                <Spinner /> Generating...
-              </span>
-            ) : (
-              "Generate"
-            )}
-          </button>
-        </form>
-        <div className="flex flex-col sm:flex-row gap-4 mb-6 justify-center items-center">
-          <label className="flex items-center gap-2 font-sans text-base">
-            Flashcards:
-            <button
-              type="button"
-              className="px-2 py-1 rounded border bg-[#ececec] text-lg font-bold"
-              onClick={() => setFlashcardCount((c) => Math.max(1, c - 1))}
-              disabled={loading || flashcardCount <= 1}
-            >
-              -
-            </button>
-            <input
-              type="number"
-              min={1}
-              max={20}
-              value={flashcardCount}
-              onChange={(e) =>
-                setFlashcardCount(
-                  Math.max(1, Math.min(20, Number(e.target.value)))
-                )
-              }
-              className="w-14 border border-[#e0e0e0] rounded px-2 py-1 text-center focus:outline-none focus:border-[#b2b2b2] mx-1"
-              disabled={loading}
-            />
-            <button
-              type="button"
-              className="px-2 py-1 rounded border bg-[#ececec] text-lg font-bold"
-              onClick={() => setFlashcardCount((c) => Math.min(20, c + 1))}
-              disabled={loading || flashcardCount >= 20}
-            >
-              +
-            </button>
-          </label>
-          <label className="flex items-center gap-2 font-sans text-base">
-            MCQs:
-            <button
-              type="button"
-              className="px-2 py-1 rounded border bg-[#ececec] text-lg font-bold"
-              onClick={() => setMcqCount((c) => Math.max(1, c - 1))}
-              disabled={loading || mcqCount <= 1}
-            >
-              -
-            </button>
-            <input
-              type="number"
-              min={1}
-              max={20}
-              value={mcqCount}
-              onChange={(e) =>
-                setMcqCount(Math.max(1, Math.min(20, Number(e.target.value))))
-              }
-              className="w-14 border border-[#e0e0e0] rounded px-2 py-1 text-center focus:outline-none focus:border-[#b2b2b2] mx-1"
-              disabled={loading}
-            />
-            <button
-              type="button"
-              className="px-2 py-1 rounded border bg-[#ececec] text-lg font-bold"
-              onClick={() => setMcqCount((c) => Math.min(20, c + 1))}
-              disabled={loading || mcqCount >= 20}
-            >
-              +
-            </button>
-          </label>
-        </div>
-        {uploadedFiles.length > 0 && renderUploadedFiles()}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded mb-6 text-center font-medium">
-            {error}
-          </div>
-        )}
-        {result.flashcards.length > 0 || result.mcqs.length > 0 ? (
-          <>
-            <div className="space-y-12">
-              <Section title="Overview" content={result.overview} />
-              <Divider />
-              <Section title="Key Terms" content={result.keyTerms} isList />
-              <Divider />
-              <Section title="Short Notes" content={result.notes} isList />
-              <Divider />
-              <FlashcardGrid
-                flashcards={result.flashcards}
-                revealed={revealed}
-                onReveal={handleReveal}
-              />
-              <Divider />
-              <MCQGrid
-                mcqs={result.mcqs}
-                answers={mcqAnswers}
-                feedback={mcqFeedback}
-                onSelect={handleMcqSelect}
-              />
-            </div>
-            <Divider />
-            {/* Add Media Section */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-3 text-black font-serif tracking-tight flex items-center gap-2">
-                <span className="inline-block w-1.5 h-6 bg-[#ececec] rounded-full mr-2" />
-                Add Media to Help Understand This Topic
-              </h2>
-              <input
-                ref={mediaInputRef}
-                type="file"
-                multiple
-                accept="image/*,video/*"
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#ececec] file:text-black hover:file:bg-[#e0e0e0]"
-                onChange={handleMediaUpload}
-              />
-            </div>
-            {mediaFiles.length > 0 && renderMediaFiles()}
-            {/* YouTube Video Section */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-3 text-black font-serif tracking-tight flex items-center gap-2">
-                <span className="inline-block w-1.5 h-6 bg-[#ececec] rounded-full mr-2" />
-                Add a YouTube Video
-              </h2>
-              <div className="flex gap-2 items-center mb-2">
-                <input
-                  type="text"
-                  value={ytUrl}
-                  onChange={handleYtUrlChange}
-                  placeholder="Paste YouTube video URL"
-                  className="flex-1 border border-[#e0e0e0] bg-[#faf9f6] rounded-lg px-4 py-2 text-lg focus:outline-none focus:border-[#b2b2b2] transition shadow-sm font-sans"
-                />
-                <button
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition disabled:opacity-50"
-                  onClick={handleYtEmbed}
-                  type="button"
-                  disabled={!ytUrl.trim()}
-                >
-                  Embed
-                </button>
-                {ytEmbed && (
-                  <button
-                    className="ml-2 text-xs text-red-500 underline"
-                    onClick={handleRemoveYt}
-                    type="button"
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
-              {ytEmbed && (
-                <div className="w-full flex justify-center mt-4">
-                  <iframe
-                    width="400"
-                    height="225"
-                    src={ytEmbed}
-                    title="YouTube video player"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="rounded-xl border border-[#ececec] shadow-sm"
-                  ></iframe>
+                  <div className="mt-2 text-xs text-gray-400">
+                    No card required
+                  </div>
                 </div>
+                {/* Pro Plan */}
+                <div className="flex-1 bg-gray-950 rounded-xl p-6 border-2 border-indigo-500 shadow-lg flex flex-col items-center scale-105">
+                  <h3 className="text-xl font-bold mb-2 text-indigo-200">
+                    Pro
+                  </h3>
+                  <div className="text-3xl font-extrabold mb-2">
+                    $15<span className="text-base font-normal">/mo</span>
+                  </div>
+                  <ul className="text-gray-200 text-sm mb-4 space-y-2 text-left">
+                    <li>✔️ Unlimited generations</li>
+                    <li>✔️ Advanced flashcards & MCQs</li>
+                    <li>✔️ File & media upload</li>
+                    <li>✔️ Priority support</li>
+                    <li>❌ Early access features</li>
+                  </ul>
+                  <button
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-indigo-700 transition mt-auto"
+                    onClick={() => handlePay(1500, "Pro")} // 1500 INR for Pro
+                    disabled={userPlan === "Pro" || userPlan === "Premium"}
+                  >
+                    {userPlan === "Pro" || userPlan === "Premium"
+                      ? "Pro Unlocked"
+                      : "Buy Pro"}
+                  </button>
+                </div>
+                {/* Premium Plan */}
+                <div className="flex-1 bg-gray-900 rounded-xl p-6 border border-gray-700 shadow-sm flex flex-col items-center">
+                  <h3 className="text-xl font-bold mb-2 text-purple-200">
+                    Premium
+                  </h3>
+                  <div className="text-3xl font-extrabold mb-2">
+                    $40<span className="text-base font-normal">/mo</span>
+                  </div>
+                  <ul className="text-gray-200 text-sm mb-4 space-y-2 text-left">
+                    <li>✔️ All Pro features</li>
+                    <li>✔️ Export to PDF/CSV</li>
+                    <li>✔️ Early access to new features</li>
+                    <li>✔️ Dedicated support</li>
+                  </ul>
+                  <button
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-purple-700 transition mt-auto"
+                    onClick={() => handlePay(4000, "Premium")} // 4000 INR for Premium
+                    disabled={userPlan === "Premium"}
+                  >
+                    {userPlan === "Premium"
+                      ? "Premium Unlocked"
+                      : "Buy Premium"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Main Card */}
+        <div className="w-full max-w-3xl bg-white/90 rounded-3xl shadow-2xl p-6 sm:p-10 border border-blue-100 mt-8">
+          {/* My Study Sets Section */}
+          {isSignedIn && (
+            <div className="w-full max-w-md mx-auto bg-white/90 rounded-xl shadow border border-blue-100 mb-8 p-4 flex flex-col items-center">
+              <h3 className="font-bold text-lg sm:text-xl mb-4 text-indigo-800 text-center">
+                My Study Sets
+              </h3>
+              {studySessions.length === 0 ? (
+                <div className="text-gray-400 text-center py-8">
+                  <span className="text-4xl block mb-2">📂</span>
+                  No study sets yet. Start generating!
+                </div>
+              ) : (
+                <ul className="w-full space-y-3">
+                  {studySessions.map((session) => (
+                    <li
+                      key={session.id}
+                      className="flex items-center justify-between bg-white rounded-lg shadow-sm border border-blue-50 px-4 py-3 hover:shadow-md transition"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-2xl">📝</span>
+                        <div className="min-w-0">
+                          <div className="font-semibold text-indigo-800 truncate">
+                            {session.topic}
+                          </div>
+                          <div className="text-xs text-gray-400">
+                            {new Date(session.created_at).toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          className="text-blue-600 hover:underline text-sm font-medium"
+                          onClick={() => {
+                            setTopic(session.topic);
+                            setResult(session.result);
+                            setRevealed(
+                              Array(session.result.flashcards.length).fill(
+                                false
+                              )
+                            );
+                            setMcqAnswers(
+                              Array(session.result.mcqs.length).fill(null)
+                            );
+                            setMcqFeedback(
+                              Array(session.result.mcqs.length).fill(null)
+                            );
+                          }}
+                        >
+                          View
+                        </button>
+                        <button
+                          className="text-red-500 hover:text-red-700 text-sm font-medium"
+                          onClick={async () => {
+                            if (window.confirm("Delete this study set?")) {
+                              await supabase
+                                .from("study_sessions")
+                                .delete()
+                                .eq("id", session.id);
+                              setStudySessions((prev) =>
+                                prev.filter((s) => s.id !== session.id)
+                              );
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
-          </>
-        ) : null}
+          )}
+          <h1 className="text-4xl font-extrabold mb-8 text-center text-black tracking-tight font-serif flex items-center justify-center">
+            <span className="inline-block align-middle mr-2">📝</span>Study AI
+            Generator
+          </h1>
+          <form
+            onSubmit={handleGenerate}
+            className="flex flex-col sm:flex-row gap-3 mb-10 justify-center"
+          >
+            <input
+              className="flex-1 border border-[#e0e0e0] bg-[#faf9f6] rounded-lg px-4 py-2 text-lg focus:outline-none focus:border-[#b2b2b2] transition shadow-sm font-sans"
+              type="text"
+              placeholder="Enter a topic (e.g. Photosynthesis)"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              required={!uploadedFiles.length}
+              disabled={loading}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#ececec] file:text-black hover:file:bg-[#e0e0e0]"
+              onChange={handleFileUpload}
+              disabled={loading}
+              style={{ maxWidth: 220 }}
+            />
+            <button
+              className="bg-black text-white px-6 py-2 rounded-lg text-lg font-semibold shadow hover:bg-[#222] transition disabled:opacity-50 font-sans"
+              type="submit"
+              disabled={
+                loading ||
+                (!topic && !uploadedFiles.length) ||
+                flashcardCount < 1 ||
+                flashcardCount > 20 ||
+                mcqCount < 1 ||
+                mcqCount > 20
+              }
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Spinner /> Generating...
+                </span>
+              ) : (
+                "Generate"
+              )}
+            </button>
+          </form>
+          <div className="flex flex-col sm:flex-row gap-4 mb-6 justify-center items-center">
+            <label className="flex items-center gap-2 font-sans text-base">
+              Flashcards:
+              <button
+                type="button"
+                className="px-2 py-1 rounded border bg-[#ececec] text-lg font-bold"
+                onClick={() => setFlashcardCount((c) => Math.max(1, c - 1))}
+                disabled={loading || flashcardCount <= 1}
+              >
+                -
+              </button>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={flashcardCount}
+                onChange={(e) =>
+                  setFlashcardCount(
+                    Math.max(1, Math.min(20, Number(e.target.value)))
+                  )
+                }
+                className="w-14 border border-[#e0e0e0] rounded px-2 py-1 text-center focus:outline-none focus:border-[#b2b2b2] mx-1"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                className="px-2 py-1 rounded border bg-[#ececec] text-lg font-bold"
+                onClick={() => setFlashcardCount((c) => Math.min(20, c + 1))}
+                disabled={loading || flashcardCount >= 20}
+              >
+                +
+              </button>
+            </label>
+            <label className="flex items-center gap-2 font-sans text-base">
+              MCQs:
+              <button
+                type="button"
+                className="px-2 py-1 rounded border bg-[#ececec] text-lg font-bold"
+                onClick={() => setMcqCount((c) => Math.max(1, c - 1))}
+                disabled={loading || mcqCount <= 1}
+              >
+                -
+              </button>
+              <input
+                type="number"
+                min={1}
+                max={20}
+                value={mcqCount}
+                onChange={(e) =>
+                  setMcqCount(Math.max(1, Math.min(20, Number(e.target.value))))
+                }
+                className="w-14 border border-[#e0e0e0] rounded px-2 py-1 text-center focus:outline-none focus:border-[#b2b2b2] mx-1"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                className="px-2 py-1 rounded border bg-[#ececec] text-lg font-bold"
+                onClick={() => setMcqCount((c) => Math.min(20, c + 1))}
+                disabled={loading || mcqCount >= 20}
+              >
+                +
+              </button>
+            </label>
+          </div>
+          {uploadedFiles.length > 0 && renderUploadedFiles()}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded mb-6 text-center font-medium">
+              {error}
+            </div>
+          )}
+          {result.flashcards.length > 0 || result.mcqs.length > 0 ? (
+            <>
+              <div className="space-y-12">
+                <Section title="Overview" content={result.overview} />
+                <Divider />
+                <Section title="Key Terms" content={result.keyTerms} isList />
+                <Divider />
+                <Section title="Short Notes" content={result.notes} isList />
+                <Divider />
+                <FlashcardGrid
+                  flashcards={result.flashcards}
+                  revealed={revealed}
+                  onReveal={handleReveal}
+                />
+                <Divider />
+                <MCQGrid
+                  mcqs={result.mcqs}
+                  answers={mcqAnswers}
+                  feedback={mcqFeedback}
+                  onSelect={handleMcqSelect}
+                />
+              </div>
+              <Divider />
+              {/* Add Media Section */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-3 text-black font-serif tracking-tight flex items-center gap-2">
+                  <span className="inline-block w-1.5 h-6 bg-[#ececec] rounded-full mr-2" />
+                  Add Media to Help Understand This Topic
+                </h2>
+                <input
+                  ref={mediaInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,video/*"
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#ececec] file:text-black hover:file:bg-[#e0e0e0]"
+                  onChange={handleMediaUpload}
+                />
+              </div>
+              {mediaFiles.length > 0 && renderMediaFiles()}
+              {/* YouTube Video Section */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-3 text-black font-serif tracking-tight flex items-center gap-2">
+                  <span className="inline-block w-1.5 h-6 bg-[#ececec] rounded-full mr-2" />
+                  Add a YouTube Video
+                </h2>
+                <div className="flex gap-2 items-center mb-2">
+                  <input
+                    type="text"
+                    value={ytUrl}
+                    onChange={handleYtUrlChange}
+                    placeholder="Paste YouTube video URL"
+                    className="flex-1 border border-[#e0e0e0] bg-[#faf9f6] rounded-lg px-4 py-2 text-lg focus:outline-none focus:border-[#b2b2b2] transition shadow-sm font-sans"
+                  />
+                  <button
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition disabled:opacity-50"
+                    onClick={handleYtEmbed}
+                    type="button"
+                    disabled={!ytUrl.trim()}
+                  >
+                    Embed
+                  </button>
+                  {ytEmbed && (
+                    <button
+                      className="ml-2 text-xs text-red-500 underline"
+                      onClick={handleRemoveYt}
+                      type="button"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+                {ytEmbed && (
+                  <div className="w-full flex justify-center mt-4">
+                    <iframe
+                      width="400"
+                      height="225"
+                      src={ytEmbed}
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="rounded-xl border border-[#ececec] shadow-sm"
+                    ></iframe>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : null}
+        </div>
       </div>
       {/* After generation, show Save button at top right of results area */}
       {(result.flashcards.length > 0 || result.mcqs.length > 0) &&
@@ -790,7 +881,7 @@ export default function App() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
