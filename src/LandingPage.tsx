@@ -6,6 +6,7 @@ import {
   SignInButton,
   UserButton,
 } from "@clerk/clerk-react";
+import { createClient } from "@supabase/supabase-js";
 
 // Add Razorpay type declaration for TypeScript
 // @ts-ignore
@@ -81,13 +82,20 @@ function handlePay(amount: number, planName: string, onSuccess?: () => void) {
   rzp.open();
 }
 
+// Update modalContent to accept contact form state and handler as parameters
 const modalContent = (
   setModal: React.Dispatch<
     React.SetStateAction<
       "privacy" | "terms" | "contact" | "pricing" | "login" | null
     >
   >,
-  dark: boolean
+  dark: boolean,
+  contactEmail: string,
+  setContactEmail: React.Dispatch<React.SetStateAction<string>>,
+  contactMsg: string,
+  setContactMsg: React.Dispatch<React.SetStateAction<string>>,
+  contactStatus: null | "success" | "error",
+  handleContactSubmit: (e: React.FormEvent) => void
 ) => ({
   privacy: {
     title: "Privacy Policy",
@@ -132,28 +140,60 @@ const modalContent = (
     body: (
       <>
         <p className="mb-2 font-semibold">We'd love to hear from you!</p>
-        <ul className="list-disc pl-5 space-y-1 text-left">
+        <ul className="list-disc pl-5 space-y-1 text-left mb-4">
           <li>
             Email:{" "}
             <a
-              href="mailto:support@studyai.com"
+              href="mailto:mdomarsahil@gmail.com"
               className="underline text-indigo-600"
             >
-              support@studyai.com
+              mdomarsahil@gmail.com
             </a>
           </li>
           <li>
-            Twitter:{" "}
+            Twitter/X:{" "}
             <a
-              href="https://twitter.com/studyaiofficial"
+              href="https://twitter.com/fromarsahil"
               className="underline text-indigo-600"
               target="_blank"
               rel="noopener noreferrer"
             >
-              @studyaiofficial
+              @fromarsahil
             </a>
           </li>
         </ul>
+        <form onSubmit={handleContactSubmit} className="space-y-3 mt-4">
+          <input
+            type="email"
+            required
+            placeholder="Your email"
+            value={contactEmail}
+            onChange={(e) => setContactEmail(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+          />
+          <textarea
+            required
+            placeholder="Your message"
+            value={contactMsg}
+            onChange={(e) => setContactMsg(e.target.value)}
+            className="w-full border rounded px-3 py-2"
+            rows={4}
+          />
+          <button
+            type="submit"
+            className="bg-indigo-600 text-white px-4 py-2 rounded"
+          >
+            Send
+          </button>
+          {contactStatus === "success" && (
+            <div className="text-green-600 text-sm mt-2">Message sent!</div>
+          )}
+          {contactStatus === "error" && (
+            <div className="text-red-600 text-sm mt-2">
+              Failed to send. Try again.
+            </div>
+          )}
+        </form>
       </>
     ),
   },
@@ -263,6 +303,18 @@ export default function LandingPage() {
   const [dark, setDark] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
 
+  // Contact form state
+  const [contactEmail, setContactEmail] = useState("");
+  const [contactMsg, setContactMsg] = useState("");
+  const [contactStatus, setContactStatus] = useState<
+    null | "success" | "error"
+  >(null);
+
+  const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY
+  );
+
   const handleReveal = (idx: number) => {
     setRevealed((prev) => {
       const copy = [...prev];
@@ -284,7 +336,31 @@ export default function LandingPage() {
     });
   };
 
-  const modalData = modalContent(setModal, dark);
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setContactStatus(null);
+    const { error } = await supabase
+      .from("contact_messages")
+      .insert([{ user_email: contactEmail, message: contactMsg }]);
+    if (error) {
+      setContactStatus("error");
+    } else {
+      setContactStatus("success");
+      setContactEmail("");
+      setContactMsg("");
+    }
+  };
+
+  const modalData = modalContent(
+    setModal,
+    dark,
+    contactEmail,
+    setContactEmail,
+    contactMsg,
+    setContactMsg,
+    contactStatus,
+    handleContactSubmit
+  );
 
   return (
     <div
