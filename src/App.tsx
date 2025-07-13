@@ -349,9 +349,9 @@ export default function App() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-blue-100 to-white text-indigo-900 py-10 px-2 font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-blue-100 to-white text-indigo-900 py-6 px-1 sm:px-4 md:px-8 font-sans transition-colors duration-300">
       {/* Clerk Auth Bar */}
-      <div className="max-w-4xl mx-auto mb-6 flex justify-end items-center gap-4">
+      <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row justify-end items-center gap-4 px-2">
         {!isLoaded ? (
           <div className="text-center py-4">Loading...</div>
         ) : (
@@ -475,18 +475,21 @@ export default function App() {
         </div>
       )}
       {/* Main App */}
-      <div className="max-w-4xl mx-auto bg-white/90 rounded-3xl shadow-2xl p-4 sm:p-8 md:p-12 border border-blue-100 relative">
+      <div className="max-w-4xl mx-auto bg-white/90 rounded-3xl shadow-2xl p-2 sm:p-6 md:p-10 border border-blue-100 relative w-full">
         {/* My Study Sets Section */}
         {isSignedIn && (
-          <div className="w-full max-w-xs bg-white/90 rounded-xl shadow p-4 mb-6 border border-blue-100">
-            <h3 className="font-bold text-lg mb-2 text-indigo-800">
+          <div className="w-full max-w-xs sm:max-w-md md:max-w-lg bg-white/90 rounded-xl shadow p-4 mb-6 border border-blue-100 mx-auto">
+            <h3 className="font-bold text-lg sm:text-xl mb-2 text-indigo-800">
               My Study Sets
             </h3>
             <ul>
               {studySessions.map((session) => (
-                <li key={session.id} className="mb-2">
+                <li
+                  key={session.id}
+                  className="mb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+                >
                   <button
-                    className="text-indigo-700 underline"
+                    className="text-indigo-700 underline text-left truncate"
                     onClick={() => {
                       setTopic(session.topic);
                       setResult(session.result);
@@ -507,7 +510,7 @@ export default function App() {
                     </span>
                   </button>
                   <button
-                    className="text-red-500 ml-2 hover:text-red-700"
+                    className="text-red-500 ml-0 sm:ml-2 hover:text-red-700 w-full sm:w-auto"
                     onClick={async () => {
                       await supabase
                         .from("study_sessions")
